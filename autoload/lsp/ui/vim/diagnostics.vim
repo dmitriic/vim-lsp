@@ -1,8 +1,8 @@
 let s:is_win = has('win32') || has('win64')
 let s:diagnostics = {} " { uri: { 'server_name': response } }
 
-function! lsp#ui#vim#diagnostics#handle_text_document_publish_diagnostics(server_name, data)
-    echoerr 'Received diagnostic from ' . a:server_name
+function! lsp#ui#vim#diagnostics#handle_text_document_publish_diagnostics(server_name, data) abort
+    echo 'Received diagnostic from ' . a:server_name
     if lsp#client#is_error(a:data['response'])
         return
     endif
@@ -15,7 +15,7 @@ function! lsp#ui#vim#diagnostics#handle_text_document_publish_diagnostics(server
     endif
     let s:diagnostics[l:uri][a:server_name] = a:data
 
-    echoerr 'setting virtual'
+    echo 'setting virtual'
     call lsp#ui#vim#virtual#set(a:server_name, a:data)
     call lsp#ui#vim#highlights#set(a:server_name, a:data)
     call lsp#ui#vim#diagnostics#textprop#set(a:server_name, a:data)
