@@ -45,6 +45,8 @@ let s:sign_ids = {}
         if !has_key(s:sign_ids[a:path], l:index) 
           let l:sign_id = l:index
           let s:sign_ids[a:path][l:index] = a:sign_group
+        else 
+          let l:index = l:index + 1
         endif
       endwhile
       echom 'calculated id: ' . l:sign_id
