@@ -50,11 +50,10 @@ let s:sign_ids = {}
       echom 'calculated id: ' . l:sign_id
     endif
     try 
-      echom 'lines: ' . a:lines['lnum']
 
       let l:command = 'sign place ' . l:sign_id 
         \ . ' line=' . a:lines['lnum'] 
-        \ . ' name=' . a:name
+        \ . ' name=' . a:sign_name
         \ . ' file=' . a:path
     catch
       echom v:exception
