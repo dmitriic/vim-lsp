@@ -31,9 +31,11 @@ let s:sign_ids = {}
   endfunction
 
   function! s:sign_place(sign_id, sign_group, sign_name, path, lines) 
+    echo 'SIGN_PLACE'
     " calculating sign id
     let l:sign_id = sign_id
     if l:sign_id == 0
+      echo 'Calculating sign id...'
       let l:index = 1
       if !has_key(s:sign_ids, a:path)
         let s:sign_ids[a:path] = { }
@@ -43,9 +45,9 @@ let s:sign_ids = {}
         if !has_key(s:sign_ids[a:path], l:index) 
           let l:sign_id = l:index
           let s:sign_ids[a:path][l:index] = a:sign_group
-          return l:sign_id
         endif
       endwhile
+      echo 'calculated id: ' . l:sign_id
     endif
 
 
@@ -56,6 +58,8 @@ let s:sign_ids = {}
 
     echo l:command
     execute l:command
+    echo 'Sign placed'
+    return l:sign_id
   endfunction
 
   function! s:sign_unplace(sign_group, location)
