@@ -53,7 +53,7 @@ let s:sign_ids = {}
       \ . ' name=' . a:name
       \ . ' file=' . a:path
 
-    echoerr l:command
+    echo l:command
     exec l:command
   endfunction
 
@@ -147,11 +147,11 @@ function! s:undefine_signs() abort
 endfunction
 
 function! lsp#ui#vim#signs#set(server_name, data) abort
-    echoerr 'signset'
+    echo 'signset'
     if !s:supports_signs | return | endif
-    echoerr 'signs supported'
+    echo 'signs supported'
     if !s:enabled | return | endif
-    echoerr 'signs enabled'
+    echo 'signs enabled'
 
     if lsp#client#is_error(a:data['response'])
         return
@@ -163,7 +163,7 @@ function! lsp#ui#vim#signs#set(server_name, data) abort
     let l:path = lsp#utils#uri_to_path(l:uri)
 
     " will always replace existing set
-    echoerr 'SIGNSET: render cycle'
+    echo 'SIGNSET: render cycle'
     call s:clear_signs(a:server_name, l:path)
     call s:place_signs(a:server_name, l:path, l:diagnostics)
 endfunction
@@ -179,22 +179,22 @@ function! s:get_sign_group(server_name) abort
 endfunction
 
 function! s:place_signs(server_name, path, diagnostics) abort
-    echoerr 'place_signs call'
+    echo 'place_signs call'
     if !s:supports_signs | return | endif
-    echoerr 'signs supported'
+    echo 'signs supported'
 
     let l:sign_group = s:get_sign_group(a:server_name)
-    echoerr 'sign group: ' . l:sign_group
+    echo 'sign group: ' . l:sign_group
 
     if !empty(a:diagnostics) && bufnr(a:path) >= 0
-        echoerr 'Displaying signs...'
+        echo 'Displaying signs...'
         for l:item in a:diagnostics
             let l:line = l:item['range']['start']['line'] + 1
 
             if has_key(l:item, 'severity') && !empty(l:item['severity'])
                 let l:sign_name = get(s:severity_sign_names_mapping, l:item['severity'], 'LspError')
                 " pass 0 and let vim generate sign id
-                echoerr 'Placing sign at line ' . l:line
+                echo 'Placing sign at line ' . l:line
                 let l:sign_id = sign_place(0, l:sign_group, l:sign_name, a:path, { 'lnum': l:line })
 
                 call lsp#log('add signs', l:sign_id)
