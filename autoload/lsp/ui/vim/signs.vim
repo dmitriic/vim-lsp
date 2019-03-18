@@ -33,7 +33,7 @@ let s:sign_ids = {}
   function! s:sign_place(sign_id, sign_group, sign_name, path, lines) 
     echo 'SIGN_PLACE'
     " calculating sign id
-    let l:sign_id = sign_id
+    let l:sign_id = a:sign_id
     if l:sign_id == 0
       echo 'Calculating sign id...'
       let l:index = 1
