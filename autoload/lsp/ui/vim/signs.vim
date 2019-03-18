@@ -175,9 +175,12 @@ function! s:get_sign_group(server_name) abort
 endfunction
 
 function! s:place_signs(server_name, path, diagnostics) abort
+    echoerr 'place_signs call'
     if !s:supports_signs | return | endif
+    echoerr 'signs supported'
 
     let l:sign_group = s:get_sign_group(a:server_name)
+    echoerr 'sign group: ' . l:sign_group
 
     if !empty(a:diagnostics) && bufnr(a:path) >= 0
         echoerr 'Displaying signs...'
