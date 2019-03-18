@@ -180,12 +180,14 @@ function! s:place_signs(server_name, path, diagnostics) abort
     let l:sign_group = s:get_sign_group(a:server_name)
 
     if !empty(a:diagnostics) && bufnr(a:path) >= 0
+        echoerr 'Displaying signs...'
         for l:item in a:diagnostics
             let l:line = l:item['range']['start']['line'] + 1
 
             if has_key(l:item, 'severity') && !empty(l:item['severity'])
                 let l:sign_name = get(s:severity_sign_names_mapping, l:item['severity'], 'LspError')
                 " pass 0 and let vim generate sign id
+                echoerr 'Placing sign at line ' . l:line
                 let l:sign_id = sign_place(0, l:sign_group, l:sign_name, a:path, { 'lnum': l:line })
 
                 call lsp#log('add signs', l:sign_id)
