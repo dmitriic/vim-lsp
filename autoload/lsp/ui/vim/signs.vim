@@ -50,6 +50,7 @@ let s:sign_ids = {}
       echo 'calculated id: ' . l:sign_id
     endif
 
+    echo 'lines: ' . a:lines
 
     let l:command = 'sign place ' . l:sign_id 
       \ . ' line=' . a:lines['lnum'] 
