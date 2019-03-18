@@ -23,11 +23,11 @@ let s:sign_ids = {}
       let l:command = l:command . ' icon=' . a:options['icon']
     endif
 
-    exec l:command
+    execute l:command
   endfunction
 
   function! s:sign_undefine(sign_name)
-    exec 'sign undefine ' . a:sign_name
+    execute 'sign undefine ' . a:sign_name
   endfunction
 
   function! s:sign_place(sign_id, sign_group, sign_name, path, lines) 
@@ -54,7 +54,7 @@ let s:sign_ids = {}
       \ . ' file=' . a:path
 
     echo l:command
-    exec l:command
+    execute l:command
   endfunction
 
   function! s:sign_unplace(sign_group, location)
@@ -62,7 +62,7 @@ let s:sign_ids = {}
     if has_key(s:sign_ids, l:file) 
       for item in items(s:sign_ids[l:file]) 
         if a:sign_group == item[1] 
-          exec 'sign unplace ' . item[0] . ' file=' . l:file
+          execute 'sign unplace ' . item[0] . ' file=' . l:file
           remove(s:sign_ids[l:file], item[0])
         endif
       endfor
