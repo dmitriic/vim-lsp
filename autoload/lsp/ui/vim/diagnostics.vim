@@ -1,7 +1,7 @@
 let s:is_win = has('win32') || has('win64')
 let s:diagnostics = {} " { uri: { 'server_name': response } }
 
-function! lsp#ui#vim#diagnostics#handle_text_document_publish_diagnostics(server_name, data) abort
+function! lsp#ui#vim#diagnostics#handle_text_document_publish_diagnostics(server_name, data)
     echoerr 'Received diagnostic from ' . a:server_name
     if lsp#client#is_error(a:data['response'])
         return
