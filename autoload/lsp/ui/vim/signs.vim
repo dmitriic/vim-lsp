@@ -1,7 +1,8 @@
 " TODO: handle !has('signs')
 " TODO: handle signs clearing when server exits
 " https://github.com/vim/vim/pull/3652
-let s:supports_signs = exists('*sign_define') && (has('nvim') || has('patch-8.1.0772'))
+let s:supports_signs = has('signs')
+let s:has_sign_define = has('patch-8.1.0772') && exists('*sign_define')
 let s:enabled = 0
 let s:signs = {} " { server_name: { path: {} } }
 let s:severity_sign_names_mapping = {
@@ -10,6 +11,62 @@ let s:severity_sign_names_mapping = {
     \ 3: 'LspInformation',
     \ 4: 'LspHint',
     \ }
+
+let s:sign_ids = {}
+  function! s:sign_define(sign_name, options)
+    let l:command = 'sign define ' . a:sign_name 
+        \ . ' text=' . a:options['text'] . ' '
+        \ . ' texthl=' . a:options['texthl'] . ' '
+        \ . ' linehl=' . a:options['linehl']
+
+    if has_key(a:options, 'icon') 
+      let l:command = l:command . ' icon=' . a:options['icon']
+    endif
+
+    exec l:command
+  endfunction
+
+  function! s:sign_undefine(sign_name)
+    exec 'sign undefine ' . a:sign_name
+  endfunction
+
+  function! s:sign_place(sign_id, sign_group, sign_name, path, lines) 
+    " calculating sign id
+    let l:sign_id = sign_id
+    if l:sign_id == 0
+      let l:index = 1
+      if !has_key(s:sign_ids, a:path)
+        let s:sign_ids[a:path] = { }
+      endif
+
+      while l:sign_id == 0
+        if !has_key(s:sign_ids[a:path], l:index) 
+          let l:sign_id = l:index
+          let s:sign_ids[a:path][l:index] = a:sign_group
+        endif
+      endwhile
+    endif
+
+
+    let l:command = 'sign place ' . l:sign_id 
+      \ . ' line=' . a:lines['lnum'] 
+      \ . ' name=' . a:name
+      \ . ' file=' . a:path
+
+    exec l:command
+  endfunction
+
+  function! s:sign_unplace(sign_group, location)
+    let l:file = a:location.buffer
+    if has_key(s:sign_ids, l:file) 
+      for item in items(s:sign_ids[l:file]) 
+        if a:sign_group == item[1] 
+          exec 'sign unplace ' . item[0] . ' file=' . l:file
+          remove(s:sign_ids[l:file], item[0])
+        endif
+      endfor
+    endif
+  endfunction
 
 if !hlexists('LspErrorText')
     highlight link LspErrorText Error
@@ -43,15 +100,15 @@ endfunction
 function! s:add_sign(sign_name, sign_default_text, sign_options) abort
     if !s:supports_signs | return | endif
     let l:options = {
-        \ 'text': get(a:sign_options, 'text', a:sign_default_text),
-        \ 'texthl': a:sign_name . 'Text',
-        \ 'linehl': a:sign_name . 'Line',
-        \ }
+      \ 'text': get(a:sign_options, 'text', a:sign_default_text),
+      \ 'texthl': a:sign_name . 'Text',
+      \ 'linehl': a:sign_name . 'Line',
+      \ }
     let l:sign_icon = get(a:sign_options, 'icon', '')
     if !empty(l:sign_icon)
         let l:options['icon'] = l:sign_icon
     endif
-    call sign_define(a:sign_name, l:options)
+    call s:sign_define(a:sign_name, l:options)
 endfunction
 
 function! s:define_signs() abort
@@ -82,10 +139,10 @@ endfunction
 
 function! s:undefine_signs() abort
     if !s:supports_signs | return | endif
-    call sign_undefine('LspError')
-    call sign_undefine('LspWarning')
-    call sign_undefine('LspInformation')
-    call sign_undefine('LspHint')
+    call s:sign_undefine('LspError')
+    call s:sign_undefine('LspWarning')
+    call s:sign_undefine('LspInformation')
+    call s:sign_undefine('LspHint')
 endfunction
 
 function! lsp#ui#vim#signs#set(server_name, data) abort
@@ -109,7 +166,7 @@ endfunction
 function! s:clear_signs(server_name, path) abort
     if !s:supports_signs || !bufloaded(a:path) | return | endif
     let l:sign_group = s:get_sign_group(a:server_name)
-    call sign_unplace(l:sign_group, { 'buffer': a:path })
+    call s:sign_unplace(l:sign_group, { 'buffer': a:path })
 endfunction
 
 function! s:get_sign_group(server_name) abort
@@ -127,12 +184,12 @@ function! s:place_signs(server_name, path, diagnostics) abort
 
             if has_key(l:item, 'severity') && !empty(l:item['severity'])
                 let l:sign_name = get(s:severity_sign_names_mapping, l:item['severity'], 'LspError')
-                let l:sign_priority = get(g:lsp_signs_priority_map, l:sign_name, g:lsp_signs_priority)
-                let l:sign_priority = get(g:lsp_signs_priority_map,
-                                          \a:server_name . '_' . l:sign_name, l:sign_priority)
-                " pass 0 and let vim generate sign id
-                let l:sign_id = sign_place(0, l:sign_group, l:sign_name, a:path,
-                                           \{ 'lnum': l:line, 'priority': l:sign_priority })
+                if s:use_sign_define
+                  " pass 0 and let vim generate sign id
+                  let l:sign_id = sign_place(0, l:sign_group, l:sign_name, a:path, { 'lnum': l:line })
+                else 
+
+                endif
                 call lsp#log('add signs', l:sign_id)
             endif
         endfor
