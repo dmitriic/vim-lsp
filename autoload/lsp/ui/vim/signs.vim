@@ -68,15 +68,24 @@ let s:sign_ids = {}
   endfunction
 
   function! s:sign_unplace(sign_group, location)
-    let l:file = a:location.buffer
-    if has_key(s:sign_ids, l:file) 
-      for item in items(s:sign_ids[l:file]) 
-        if a:sign_group == item[1] 
-          execute 'sign unplace ' . item[0] . ' file=' . l:file
-          remove(s:sign_ids[l:file], item[0])
-        endif
-      endfor
-    endif
+    try 
+      echom 'Unplacing signs in group: ' . a:sign_group
+      let l:file = a:location.buffer
+      echom 'file: ' . l:file
+      if has_key(s:sign_ids, l:file) 
+        for item in items(s:sign_ids[l:file]) 
+          if a:sign_group == item[1] 
+            echom 'Unplacing sign #' . item[0]
+            execute 'sign unplace ' . item[0] . ' file=' . l:file
+            remove(s:sign_ids[l:file], item[0])
+          endif
+        endfor
+      else 
+        echom 'No signs found for the file'
+      endif
+    catch
+      echom v:exception
+    endtry
   endfunction
 
 if !hlexists('LspErrorText')
