@@ -147,8 +147,11 @@ function! s:undefine_signs() abort
 endfunction
 
 function! lsp#ui#vim#signs#set(server_name, data) abort
+    echoerr 'signset'
     if !s:supports_signs | return | endif
+    echoerr 'signs supported'
     if !s:enabled | return | endif
+    echoerr 'signs enabled'
 
     if lsp#client#is_error(a:data['response'])
         return
@@ -160,6 +163,7 @@ function! lsp#ui#vim#signs#set(server_name, data) abort
     let l:path = lsp#utils#uri_to_path(l:uri)
 
     " will always replace existing set
+    echoerr 'SIGNSET: render cycle'
     call s:clear_signs(a:server_name, l:path)
     call s:place_signs(a:server_name, l:path, l:diagnostics)
 endfunction
