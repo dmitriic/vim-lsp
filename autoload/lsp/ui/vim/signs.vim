@@ -53,7 +53,7 @@ let s:sign_ids = {}
       \ . ' name=' . a:name
       \ . ' file=' . a:path
 
-    echo l:command
+    echoerr l:command
     exec l:command
   endfunction
 
