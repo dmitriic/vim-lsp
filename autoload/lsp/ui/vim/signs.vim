@@ -75,9 +75,9 @@ let s:sign_ids = {}
       if has_key(s:sign_ids, l:file) 
         for item in items(s:sign_ids[l:file]) 
           if a:sign_group == item[1] 
-            echom 'Unplacing sign #' . item[0]
+            echom 'Unplacing sign #' . item[0] . ' From file ' . l:file
             execute 'sign unplace ' . item[0] . ' file=' . l:file
-            remove(s:sign_ids[l:file], item[0])
+            unlet s:sign_ids[l:file][item[0]]
           endif
         endfor
       else 
