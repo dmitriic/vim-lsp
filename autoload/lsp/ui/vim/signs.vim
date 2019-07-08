@@ -31,11 +31,11 @@ let s:sign_ids = {}
   endfunction
 
   function! s:sign_place(sign_id, sign_group, sign_name, path, lines) 
-    echom 'SIGN_PLACE'
+    "echom 'SIGN_PLACE'
     " calculating sign id
     let l:sign_id = a:sign_id
     if l:sign_id == 0
-      echom 'Calculating sign id...'
+      "echom 'Calculating sign id...'
       let l:index = 1
       if !has_key(s:sign_ids, a:path)
         let s:sign_ids[a:path] = { }
@@ -49,7 +49,7 @@ let s:sign_ids = {}
           let l:index = l:index + 1
         endif
       endwhile
-      echom 'calculated id: ' . l:sign_id
+      "echom 'calculated id: ' . l:sign_id
     endif
     try 
 
@@ -58,33 +58,33 @@ let s:sign_ids = {}
         \ . ' name=' . a:sign_name
         \ . ' file=' . a:path
     catch
-      echom v:exception
+      "echom v:exception
     endtry
 
-    echom l:command
+    "echom l:command
     execute l:command
-    echom 'Sign placed'
+    "echom 'Sign placed'
     return l:sign_id
   endfunction
 
   function! s:sign_unplace(sign_group, location)
     try 
-      echom 'Unplacing signs in group: ' . a:sign_group
+      "echom 'Unplacing signs in group: ' . a:sign_group
       let l:file = a:location.buffer
-      echom 'file: ' . l:file
+      "echom 'file: ' . l:file
       if has_key(s:sign_ids, l:file) 
         for item in items(s:sign_ids[l:file]) 
           if a:sign_group == item[1] 
-            echom 'Unplacing sign #' . item[0] . ' From file ' . l:file
+            "echom 'Unplacing sign #' . item[0] . ' From file ' . l:file
             execute 'sign unplace ' . item[0] . ' file=' . l:file
             unlet s:sign_ids[l:file][item[0]]
           endif
         endfor
       else 
-        echom 'No signs found for the file'
+        "echom 'No signs found for the file'
       endif
     catch
-      echom v:exception
+      "echom v:exception
     endtry
   endfunction
 
@@ -166,11 +166,11 @@ function! s:undefine_signs() abort
 endfunction
 
 function! lsp#ui#vim#signs#set(server_name, data) abort
-    echom 'signset'
+    "echom 'signset'
     if !s:supports_signs | return | endif
-    echom 'signs supported'
+    "echom 'signs supported'
     if !s:enabled | return | endif
-    echom 'signs enabled'
+    "echom 'signs enabled'
 
     if lsp#client#is_error(a:data['response'])
         return
@@ -182,7 +182,7 @@ function! lsp#ui#vim#signs#set(server_name, data) abort
     let l:path = lsp#utils#uri_to_path(l:uri)
 
     " will always replace existing set
-    echom 'SIGNSET: render cycle'
+    "echom 'SIGNSET: render cycle'
     call s:clear_signs(a:server_name, l:path)
     call s:place_signs(a:server_name, l:path, l:diagnostics)
 endfunction
@@ -198,22 +198,22 @@ function! s:get_sign_group(server_name) abort
 endfunction
 
 function! s:place_signs(server_name, path, diagnostics) abort
-    echom 'place_signs call'
+    "echom 'place_signs call'
     if !s:supports_signs | return | endif
-    echom 'signs supported'
+    "echom 'signs supported'
 
     let l:sign_group = s:get_sign_group(a:server_name)
-    echom 'sign group: ' . l:sign_group
+    "echom 'sign group: ' . l:sign_group
 
     if !empty(a:diagnostics) && bufnr(a:path) >= 0
-        echom 'Displaying signs...'
+        "echom 'Displaying signs...'
         for l:item in a:diagnostics
             let l:line = l:item['range']['start']['line'] + 1
 
             if has_key(l:item, 'severity') && !empty(l:item['severity'])
                 let l:sign_name = get(s:severity_sign_names_mapping, l:item['severity'], 'LspError')
                 " pass 0 and let vim generate sign id
-                echom 'Placing sign at line ' . l:line
+                "echom 'Placing sign at line ' . l:line
                 let l:sign_id = s:sign_place(0, l:sign_group, l:sign_name, a:path, { 'lnum': l:line })
 
                 call lsp#log('add signs', l:sign_id)
